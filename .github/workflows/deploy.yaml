@@ -1,0 +1,100 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}
+
+env:
+  MAVEN_ARGS: -ntp
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: setup node js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: test
+        run: >
+          npm run test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+#      - name: npm installs
+#        run: |
+#          npm ci
+#      - name: npm builds
+#        run: >
+#          npm run build -- --mode=production
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=long
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+  Deploy-k8s:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.28.12'
+        name: install kubectl
+      - name: setup kubectl config
+        run: |
+          mkdir ${HOME}/.kube
+          echo "${{secrets.KUBE_CONFIG}}" >> ${HOME}/.kube/config
+        shell: bash
+      - name: confirm kubectl config
+        run: |
+          kubectl version
+      - name: lower case repo name
+        run: |
+          echo "repo_lc=${repo,,}" >>${GITHUB_ENV}
+        env:
+          repo: '${{ github.repository }}'
+      - name: apply resources folder
+        working-directory: "k8s-resources"
+        run: |
+          kustomize edit set image app-image=ghcr.io/${repo_lc}:sha-${{ github.sha }}
+          kubectl kustomize | kubectl apply -f -
+      - name: await deployment rollout
+        working-directory: "k8s-resources"
+        run: |
+          kubectl rollout status -n cijug deployments
