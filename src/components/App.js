@@ -6,7 +6,7 @@ export const App = () => {
     const [resetRequestTime, setResetRequestTime] = useState(Date.now())
     const [userMessage, setUserMessage] = useState("")
     const [wsState, setWsState] = useState("na")
-    const [wssUrl, setWssUrl] = useState("")
+    const [wssUrl, setWssUrl] = useState("wss://echo.websocket.org")
 
     const updateWsState = (ws) =>  {
         if (!ws) {
@@ -38,7 +38,8 @@ export const App = () => {
     }
     const sendMessage = () => {
         websocket.send(JSON.stringify({
-            userMessage,
+            action: "sendmessage",
+            message: userMessage,
         }));
             addMessage("self", userMessage);
             setUserMessage("")
