@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chip-websocket
+  namespace: chip-websocket
+spec:
+  selector:
+    matchLabels:
+      app: chip-websocket
+  template:
+    metadata:
+      labels:
+        app: chip-websocket
+    spec:
+#      imagePullSecrets:
+#        - name: dockerconfigjson-github-com
+      containers:
+        - image: app-image # see kustomization
+          name: chip-websocket
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              port: 80
+              path: /
+          livenessProbe:
+            httpGet:
+              port: 80
+              path: /

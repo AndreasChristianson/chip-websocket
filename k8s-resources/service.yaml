@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chip-websocket
+  namespace: chip-websocket
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: chip-websocket
