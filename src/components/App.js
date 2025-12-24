@@ -33,10 +33,11 @@ export const App = () => {
         setMessages((prevMessages) => [...prevMessages, {
             source,
             message,
-            timeStamp: Date.now(),
+            timeStamp: new Date().toLocaleTimeString(),
         }]);
     }
-    const sendMessage = () => {
+    const sendMessage = (event) => {
+        event.preventDefault();
         websocket.send(JSON.stringify({
             action: "sendmessage",
             message: userMessage,
@@ -44,7 +45,8 @@ export const App = () => {
             addMessage("self", userMessage);
             setUserMessage("")
     }
-    const resetWs = () => {
+    const resetWs = (event) => {
+        event.preventDefault();
         addMessage("system", `ws connection to ${wssUrl}`);
         setResetRequestTime(Date.now())
     }
@@ -73,16 +75,16 @@ export const App = () => {
     return <>
         <h1>Websocket Chat</h1>
         <div>state {wsState}</div>
-        <div>
+        <form onSubmit={resetWs}>
             <input
                 type="text"
                 value={wssUrl}
                 onChange={(event) => {setWssUrl(event.target.value);}}
                 placeholder="wss://example.com"
             />
-            <button onClick={resetWs}>connect/reconnect</button>
-        </div>
-        <div>
+            <button type={"submit"}>connect/reconnect</button>
+        </form>
+        <form onSubmit={sendMessage}>
             <span>Send Message:</span>
             <input
                 type="text"
@@ -90,8 +92,8 @@ export const App = () => {
                 onChange={(event) => {setUserMessage(event.target.value);}}
                 placeholder="Type something..."
             />
-            <button onClick={sendMessage}>send</button>
-        </div>
+            <button type={"submit"}>send</button>
+        </form>
         <div>
             <ul>
                 {messages.map((message, index) => (
