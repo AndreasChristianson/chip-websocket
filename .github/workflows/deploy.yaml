@@ -94,4 +94,4 @@ jobs:
       - name: await deployment rollout
         working-directory: "k8s-resources"
         run: |
-          kubectl rollout status -n cijug deployments
+          kubectl rollout status -n chip-websocket deployments
