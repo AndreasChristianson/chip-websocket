@@ -29,7 +29,7 @@ export default {
         new webpack.ProvidePlugin({
             React: 'react',
         }),
-        new webpack.EnvironmentPlugin(["WSS_URL", "API_KEY"]),
+        // new webpack.EnvironmentPlugin(["WSS_URL", "API_KEY"]),
         new HtmlWebpackPlugin({
             template: './static/index.html',
             inject: 'body',
