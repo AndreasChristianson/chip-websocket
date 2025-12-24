@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import {apiKey, wssUrl} from "../env-vars.js";
 
 export const App = () => {
     const [messages, setMessages] = useState([]);
@@ -7,6 +6,7 @@ export const App = () => {
     const [resetRequestTime, setResetRequestTime] = useState(Date.now())
     const [userMessage, setUserMessage] = useState("")
     const [wsState, setWsState] = useState("na")
+    const [wssUrl, setWssUrl] = useState("")
 
     const updateWsState = (ws) =>  {
         if (!ws) {
@@ -44,13 +44,12 @@ export const App = () => {
             setUserMessage("")
     }
     const resetWs = () => {
-        addMessage("system", "reset ws connection");
+        addMessage("system", `ws connection to ${wssUrl}`);
         setResetRequestTime(Date.now())
     }
 
     useEffect(() => {
-        const url = `wss://${wssUrl}/production/?x-api-key=${apiKey}`;
-        const ws = new WebSocket(url);
+        const ws = new WebSocket(wssUrl);
 
         ws.onopen = () => {
             addMessage("system", "WebSocket connected.")
@@ -73,7 +72,15 @@ export const App = () => {
     return <>
         <h1>Websocket Chat</h1>
         <div>state {wsState}</div>
-        <div><button onClick={resetWs}>reset</button></div>
+        <div>
+            <input
+                type="text"
+                value={wssUrl}
+                onChange={(event) => {setWssUrl(event.target.value);}}
+                placeholder="wss://example.com"
+            />
+            <button onClick={resetWs}>connect/reconnect</button>
+        </div>
         <div>
             <span>Send Message:</span>
             <input
