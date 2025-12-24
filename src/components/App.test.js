@@ -8,5 +8,5 @@ it('App', () => {
     const {getByText} = render(
         <App />,
     );
-    expect(getByText(/test/i)).toBeTruthy();
+    expect(getByText(/websocket/i)).toBeTruthy();
 });

@@ -12,8 +12,6 @@ spec:
       labels:
         app: chip-websocket
     spec:
-#      imagePullSecrets:
-#        - name: dockerconfigjson-github-com
       containers:
         - image: app-image # see kustomization
           name: chip-websocket
