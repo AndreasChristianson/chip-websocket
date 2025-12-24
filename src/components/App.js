@@ -33,7 +33,7 @@ export const App = () => {
         setMessages((prevMessages) => [...prevMessages, {
             source,
             message,
-            timeStamp: new Date().toLocaleTimeString(),
+            timeStamp: Date.now(),
         }]);
     }
     const sendMessage = (event) => {
@@ -52,6 +52,7 @@ export const App = () => {
     }
 
     useEffect(() => {
+        websocket&&websocket.close()
         const ws = new WebSocket(wssUrl);
 
         ws.onopen = () => {
@@ -98,7 +99,7 @@ export const App = () => {
             <ul>
                 {messages.map((message, index) => (
                     <li key={index}>
-                        {message.timeStamp} - {message.source}: {message.message}
+                        {new Date(message.timeStamp).toLocaleDateString()} - {message.source}: {message.message}
                     </li>
                 ))}
             </ul>
