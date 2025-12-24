@@ -23,6 +23,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: npm installs
+        run: |
+          npm install
       - name: test
         run: >
           npm run test
@@ -37,12 +40,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-#      - name: npm installs
-#        run: |
-#          npm ci
-#      - name: npm builds
-#        run: >
-#          npm run build -- --mode=production
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
