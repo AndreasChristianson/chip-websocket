@@ -2,11 +2,11 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    spec.ingressClassName: public
     cert-manager.io/cluster-issuer: letsencrypt-prod
   name: chip-websocket-ingress
   namespace: chip-websocket
 spec:
+  ingressClassName: public
   tls:
     - hosts:
         - websocket-example.dev.pessimistic-it.com
